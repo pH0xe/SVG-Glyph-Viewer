@@ -1,0 +1,43 @@
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+header vscode-text-field {
+  width: 50%;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+main article {
+  min-width: 135px;
+  width: 15%;
+  margin: 10px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border-radius: 10px;
+  border: 1px lightgrey solid;
+}
+main article .copyValue {
+  display: flex;
+  justify-content: center;
+}
+main article .copyValue button {
+  width: 50%;
+  background-color: transparent;
+  border: 1px lightgray solid;
+  color: white;
+  cursor: pointer;
+}
+main article .copyValue button:first-child {
+  border-radius: 0 0 0 5px;
+}
+main article .copyValue button:last-child {
+  border-radius: 0 0 5px 0;
+}
+main article .copyValue button:hover {
+  filter: brightness(75%);
+}
+
+/*# sourceMappingURL=style.css.map */
