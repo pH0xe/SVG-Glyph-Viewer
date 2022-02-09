@@ -1,0 +1,89 @@
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+header > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header > div vscode-text-field {
+  width: 50%;
+}
+header > div > div:last-child {
+  display: none;
+}
+
+main vscode-divider {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+main section .collapsible-button {
+  background-color: #3c3c3c;
+  color: #D4d4d4;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 1.5em;
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+main section .collapsible-button span {
+  font-size: 1.5em !important;
+  font-weight: bold !important;
+}
+main section .collapsible-button:hover, main section .collapsible-button.active {
+  background-color: #3c3c3c77;
+}
+main section .collapsible-button .collapsible-button-actions {
+  display: flex;
+}
+main section .collapsible-button .collapsible-button-actions vscode-button {
+  margin-right: 10px;
+}
+main section .collapsible-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  display: none;
+}
+main section .collapsible-section article {
+  min-width: 135px;
+  width: 15%;
+  margin: 10px;
+  border-radius: 10px;
+  border: 1px lightgrey solid;
+}
+main section .collapsible-section article svg {
+  width: 100%;
+}
+main section .collapsible-section article .copyValue {
+  display: flex;
+  justify-content: center;
+}
+main section .collapsible-section article .copyValue button {
+  width: 50%;
+  background-color: transparent;
+  border: 1px lightgray solid;
+  cursor: pointer;
+}
+main section .collapsible-section article .copyValue button:first-child {
+  border-radius: 0 0 0 5px;
+}
+main section .collapsible-section article .copyValue button:last-child {
+  border-radius: 0 0 5px 0;
+}
+main section .collapsible-section article .copyValue button:hover {
+  filter: brightness(75%);
+}
+main section .collapsible-section article[hidden="0"] {
+  display: block;
+}
+main section .collapsible-section article[hidden="1"] {
+  display: none;
+}
