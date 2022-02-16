@@ -12,5 +12,21 @@ function main() {
 function copyUnicode(element) {
     const btn = element.target;
 
-    console.log(btn.contentText || btn.innerText);
+    navigator.clipboard.writeText(btn.contentText || btn.innerText)
+        .then(_ => sendSuccess('Succesfully copied'))
+        .catch(err => sendError('Unable to copy'));
+}
+
+function sendSuccess(text) {
+    vscode.postMessage({
+        command: 'success',
+        text
+    });
+}
+
+function sendError(text) {
+    vscode.postMessage({
+        command: 'error',
+        text
+    });
 }

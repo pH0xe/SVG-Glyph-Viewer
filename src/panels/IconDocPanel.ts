@@ -52,9 +52,13 @@ export class IconDocPanel {
                 const text = message.text;
 
                 switch (command) {
-                    case "print":
-                        console.log(text);
+                    case "error":
+                        console.error(text);
+                        vscode.window.showErrorMessage(text);
                         return;
+                    case "success":
+                        console.log(text);
+                        vscode.window.showInformationMessage(text);
                 }
             },
             undefined,
