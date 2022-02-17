@@ -3,20 +3,25 @@ import { Uri } from "vscode";
 import { Icon } from "../iconViewer/Icon";
 import { IconExtractor } from "../iconViewer/IconExtractor";
 import { getUri } from "../utils/getURI";
+import { PanelUri } from "./panelUri";
 
 export class IconDocPanel {
     public static currentPanel: IconDocPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
     private iconsExtractor: IconExtractor;
+    private readonly uris: PanelUri;
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel;
+        this.uris = this.initUri(this._panel.webview, extensionUri)
 
         this.iconsExtractor = new IconExtractor('Linearicons-Free.svg');
-
+        
+        this.iconsExtractor.getIcons().then(icons => {
+            this._panel.webview.html = this._getWebviewContent(icons);
+        });
         this._panel.onDidDispose(this.dispose, null, this._disposables);
-        this._getWebviewContent(this._panel.webview, extensionUri).then(html => this._panel.webview.html = html);
         this._setWebviewMessageListener(this._panel.webview);
     }
 
@@ -53,12 +58,11 @@ export class IconDocPanel {
 
                 switch (command) {
                     case "error":
-                        console.error(text);
                         vscode.window.showErrorMessage(text);
                         return;
                     case "success":
-                        console.log(text);
                         vscode.window.showInformationMessage(text);
+                        return;
                 }
             },
             undefined,
@@ -66,51 +70,53 @@ export class IconDocPanel {
         );
     }
 
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri) {
-        const toolkitUri = getUri(webview, extensionUri, [
-            "node_modules",
-            "@vscode",
-            "webview-ui-toolkit",
-            "dist",
-            "toolkit.js",
-        ]);
-        const condiconUri = getUri(webview, extensionUri, [
-            "node_modules",
-            "@vscode",
-            "codicons",
-            "dist",
-            "codicon.css",
-        ]);
-        const mainUri = getUri(webview, extensionUri, ["res", "main.js"]);
-        const styleUri = getUri(webview, extensionUri, ["res", "style.css"]);
+    private initUri(webview: vscode.Webview, extensionUri: vscode.Uri): PanelUri {
+        return new PanelUri(
+            getUri(webview, extensionUri, [
+                "node_modules",
+                "@vscode",
+                "webview-ui-toolkit",
+                "dist",
+                "toolkit.js",
+            ]),
+            getUri(webview, extensionUri, [
+                "node_modules",
+                "@vscode",
+                "codicons",
+                "dist",
+                "codicon.css",
+            ]),
+            getUri(webview, extensionUri, ["res", "main.js"]),
+            getUri(webview, extensionUri, ["res", "style.css"])
+        );
+    }
 
-        return this.iconsExtractor.getIcons().then(icons => {
-            return /*html*/ `
-                <!DOCTYPE html>
-                <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <script type="module" src="${toolkitUri}"></script>
-                        <script type="module" src="${mainUri}"></script>
-                        <link href="${styleUri}" rel="stylesheet">
-                        <link href="${condiconUri}" rel="stylesheet">
-                        <title>Made by pH0xe</title>
-                    </head>
-                    <body> 
-                        <header>
-                            <h1>SVG Glyph Viewer</h1>
-                            <vscode-text-field placeholder="Search">
-                                <span slot="start" class="codicon codicon-search"></span>
-                            </vscode-text-field>
-                        </header>
-                        <main>
-                            ${this.generateArticles(icons)}
-                        </main>
-                    </body>
-                </html>
-            `;
-        });
+    private _getWebviewContent(icons: Icon[]) {
+        return /*html*/ `
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <script type="module" src="${this.uris.toolkit}"></script>
+                    <script type="module" src="${this.uris.script}"></script>
+                    <link href="${this.uris.style}" rel="stylesheet">
+                    <link href="${this.uris.codicon}" rel="stylesheet">
+                    <title>Made by pH0xe</title>
+                </head>
+                <body> 
+                    <header>
+                        <h1>SVG Glyph Viewer</h1>
+                        <vscode-text-field placeholder="Search" id="searchBar">
+                            <span slot="start" class="codicon codicon-search"></span>
+                        </vscode-text-field>
+                    </header>
+                    <main>
+                        ${this.generateArticles(icons)}
+                    </main>
+                </body>
+            </html>
+        `;
     }
     
     
@@ -119,12 +125,13 @@ export class IconDocPanel {
         for (const icon of icons) {
             const content = 'data:image/svg+xml;utf8,' + this.svgTemplate(icon);
             res += /*html*/ `
-                <article>
+                <article hidden="0" class="icon-article">
                     <img class="icon" src='${content}' />
                     <div class="copyValue">
                         <button class="unicodeButton">&amp;${icon.svgUnicode.replace('&', '')}</button>
                         <button class="unicodeButton">${icon.cssUnicode}</button>
                     </div>
+                    <div hidden="1" id="icon-name">${icon.name}</div>
                 </article>
             `
         }

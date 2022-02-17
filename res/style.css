@@ -39,5 +39,11 @@ main article .copyValue button:last-child {
 main article .copyValue button:hover {
   filter: brightness(75%);
 }
+main article[hidden="0"] {
+  display: block;
+}
+main article[hidden="1"] {
+  display: none;
+}
 
 /*# sourceMappingURL=style.css.map */

@@ -42,6 +42,13 @@ main {
                 }
             }
         }
+
+        &[hidden="0"] {
+            display: block;
+        }
+        &[hidden="1"] {
+            display: none;
+        }
     }
     
 }
