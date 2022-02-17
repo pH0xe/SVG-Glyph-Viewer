@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Icon } from './Icon';
 import { XMLParser } from 'fast-xml-parser';
+import { IconFile } from './IconFiles';
 
 export class IconExtractor {
     private readonly filePath: vscode.Uri;
@@ -36,12 +37,12 @@ export class IconExtractor {
     }
 
     glyphToIcon(glyph: any): Icon {
-        let name: string = '';
+        let name: string = '*';
         let svgUnicode: string = glyph['@_unicode'].replace(';', '');
         let cssUnicode: string = `\\${glyph['@_unicode'].replace('&#x', '').replace(';', '')}`;
         let content: string = glyph['@_d'];
         
-        for (const property in glyph) {
+        for (const property in glyph) {           
             if (property !== '@_unicode' && property !== '@_d')
                 name = name + ' ' + glyph[property]
         }
@@ -72,4 +73,19 @@ export class IconExtractor {
         }
         return res;
     }
+
+    public static openFiles(files: string[]): IconFile[] {
+        const iconsFiles: IconFile[] = [];
+        files.forEach(file => {
+            iconsFiles.push(new IconFile(file, new IconExtractor(file), file))
+        });
+        return iconsFiles;
+    }
+
+    public static async loadAll(files: IconFile[]): Promise<IconFile[]> {
+        for (const file of files) {
+            await file.setIcons();
+        }
+        return files;
+    } 
 }

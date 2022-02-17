@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { Uri } from "vscode";
 import { Icon } from "../iconViewer/Icon";
 import { IconExtractor } from "../iconViewer/IconExtractor";
+import { IconFile } from "../iconViewer/IconFiles";
 import { getUri } from "../utils/getURI";
 import { PanelUri } from "./panelUri";
 
@@ -9,18 +10,18 @@ export class IconDocPanel {
     public static currentPanel: IconDocPanel | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
-    private iconsExtractor: IconExtractor;
     private readonly uris: PanelUri;
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel;
-        this.uris = this.initUri(this._panel.webview, extensionUri)
+        this.uris = this.initUri(this._panel.webview, extensionUri);
 
-        this.iconsExtractor = new IconExtractor('Linearicons-Free.svg');
-        
-        this.iconsExtractor.getIcons().then(icons => {
+        const iconsFiles = IconExtractor.openFiles(['Linearicons-Free.svg', 'eWip/eWip.svg']);
+
+        IconExtractor.loadAll(iconsFiles).then(icons => {
             this._panel.webview.html = this._getWebviewContent(icons);
         });
+        
         this._panel.onDidDispose(this.dispose, null, this._disposables);
         this._setWebviewMessageListener(this._panel.webview);
     }
@@ -91,7 +92,7 @@ export class IconDocPanel {
         );
     }
 
-    private _getWebviewContent(icons: Icon[]) {
+    private _getWebviewContent(icons: IconFile[]) {
         return /*html*/ `
             <!DOCTYPE html>
             <html lang="en">
@@ -112,11 +113,24 @@ export class IconDocPanel {
                         </vscode-text-field>
                     </header>
                     <main>
-                        ${this.generateArticles(icons)}
+                        ${this.generateSection(icons)}
                     </main>
                 </body>
             </html>
         `;
+    }
+
+    private generateSection(files: IconFile[]) {
+        let res = '';
+        for (const file of files) {
+            res += /*html*/ `
+                <section>
+                    <h2>${file.displayName}</h2>
+                    ${this.generateArticles(file.icons || [])}
+                </section>
+            `
+        }
+        return res;
     }
     
     
@@ -125,13 +139,13 @@ export class IconDocPanel {
         for (const icon of icons) {
             const content = 'data:image/svg+xml;utf8,' + this.svgTemplate(icon);
             res += /*html*/ `
-                <article hidden="0" class="icon-article">
+                <article hidden="0" class="icon-article" icon-name="${icon.name}">
                     <img class="icon" src='${content}' />
                     <div class="copyValue">
                         <button class="unicodeButton">&amp;${icon.svgUnicode.replace('&', '')}</button>
                         <button class="unicodeButton">${icon.cssUnicode}</button>
                     </div>
-                    <div hidden="1" id="icon-name">${icon.name}</div>
+                    <div id="icon-name">${icon.name}</div>
                 </article>
             `
         }

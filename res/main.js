@@ -25,16 +25,12 @@ function copyUnicode(element) {
 
 function onSearch(event) {
     const searchValue = event.target.value;
-    
     for (const icon of icons) {
-        const name = icon.querySelector('#icon-name');
-        if (name){
-            const nameString = name.innerText || name.contentText;
-            if (nameString.includes(searchValue)) {
-                icon.setAttribute("hidden", "0");
-            } else {
-                icon.setAttribute("hidden", "1");
-            }
+        const name = icon.getAttribute('icon-name');
+        if (name.includes(searchValue)) {
+            icon.setAttribute("hidden", "0");
+        } else {
+            icon.setAttribute("hidden", "1");
         }
     }
 }

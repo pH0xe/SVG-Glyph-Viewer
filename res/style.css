@@ -6,12 +6,12 @@ header vscode-text-field {
   width: 50%;
 }
 
-main {
+main section {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
-main article {
+main section article {
   min-width: 135px;
   width: 15%;
   margin: 10px;
@@ -19,30 +19,30 @@ main article {
   border-radius: 10px;
   border: 1px lightgrey solid;
 }
-main article .copyValue {
+main section article .copyValue {
   display: flex;
   justify-content: center;
 }
-main article .copyValue button {
+main section article .copyValue button {
   width: 50%;
   background-color: transparent;
   border: 1px lightgray solid;
   color: white;
   cursor: pointer;
 }
-main article .copyValue button:first-child {
+main section article .copyValue button:first-child {
   border-radius: 0 0 0 5px;
 }
-main article .copyValue button:last-child {
+main section article .copyValue button:last-child {
   border-radius: 0 0 5px 0;
 }
-main article .copyValue button:hover {
+main section article .copyValue button:hover {
   filter: brightness(75%);
 }
-main article[hidden="0"] {
+main section article[hidden="0"] {
   display: block;
 }
-main article[hidden="1"] {
+main section article[hidden="1"] {
   display: none;
 }
 
