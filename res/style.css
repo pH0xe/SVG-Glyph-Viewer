@@ -6,12 +6,39 @@ header vscode-text-field {
   width: 50%;
 }
 
-main section {
+main vscode-divider {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+main section .collapsible-button {
+  background-color: #3c3c3c;
+  color: #D4d4d4;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 1.5em;
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+main section .collapsible-button span {
+  font-size: 1.5em !important;
+  font-weight: bold !important;
+}
+main section .collapsible-button:hover, main section .collapsible-button.active {
+  filter: brightness(75%);
+}
+main section .collapsible-section {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  display: none;
 }
-main section article {
+main section .collapsible-section article {
   min-width: 135px;
   width: 15%;
   margin: 10px;
@@ -19,30 +46,30 @@ main section article {
   border-radius: 10px;
   border: 1px lightgrey solid;
 }
-main section article .copyValue {
+main section .collapsible-section article .copyValue {
   display: flex;
   justify-content: center;
 }
-main section article .copyValue button {
+main section .collapsible-section article .copyValue button {
   width: 50%;
   background-color: transparent;
   border: 1px lightgray solid;
   color: white;
   cursor: pointer;
 }
-main section article .copyValue button:first-child {
+main section .collapsible-section article .copyValue button:first-child {
   border-radius: 0 0 0 5px;
 }
-main section article .copyValue button:last-child {
+main section .collapsible-section article .copyValue button:last-child {
   border-radius: 0 0 5px 0;
 }
-main section article .copyValue button:hover {
+main section .collapsible-section article .copyValue button:hover {
   filter: brightness(75%);
 }
-main section article[hidden="0"] {
+main section .collapsible-section article[hidden="0"] {
   display: block;
 }
-main section article[hidden="1"] {
+main section .collapsible-section article[hidden="1"] {
   display: none;
 }
 

@@ -12,7 +12,7 @@ export class IconDocPanel {
     private _disposables: vscode.Disposable[] = [];
     private readonly uris: PanelUri;
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {      
         this._panel = panel;
         this.uris = this.initUri(this._panel.webview, extensionUri);
 
@@ -26,7 +26,7 @@ export class IconDocPanel {
         this._setWebviewMessageListener(this._panel.webview);
     }
 
-    public static render(extensionUri: vscode.Uri) {
+    public static render(extensionUri: vscode.Uri) {      
         if (IconDocPanel.currentPanel) {
             IconDocPanel.currentPanel._panel.reveal(vscode.ViewColumn.One);
         } else {
@@ -92,7 +92,7 @@ export class IconDocPanel {
         );
     }
 
-    private _getWebviewContent(icons: IconFile[]) {
+    private _getWebviewContent(icons: IconFile[]) {        
         return /*html*/ `
             <!DOCTYPE html>
             <html lang="en">
@@ -125,27 +125,31 @@ export class IconDocPanel {
         for (const file of files) {
             res += /*html*/ `
                 <section>
-                    <h2>${file.displayName}</h2>
-                    ${this.generateArticles(file.icons || [])}
+                    <button class="collapsible-button">
+                        ${file.displayName}
+                        <span slot="end" class="codicon codicon-chevron-down"></span>
+                    </button>
+                    <div class="collapsible-section">
+                        ${this.generateArticles(file.icons || [])}
+                    </div>
                 </section>
+                <vscode-divider></vscode-divider>
             `
         }
         return res;
     }
-    
     
     private generateArticles(icons: Icon[]) {
         let res = '';
         for (const icon of icons) {
             const content = 'data:image/svg+xml;utf8,' + this.svgTemplate(icon);
             res += /*html*/ `
-                <article hidden="0" class="icon-article" icon-name="${icon.name}">
-                    <img class="icon" src='${content}' />
+                <article hidden="0" class="icon-article" icon-name="${icon.name.toLowerCase()}">
+                    <img class="icon" src='${content}' title="${icon.name.replace('*','').trim()}"/>
                     <div class="copyValue">
                         <button class="unicodeButton">&amp;${icon.svgUnicode.replace('&', '')}</button>
                         <button class="unicodeButton">${icon.cssUnicode}</button>
                     </div>
-                    <div id="icon-name">${icon.name}</div>
                 </article>
             `
         }

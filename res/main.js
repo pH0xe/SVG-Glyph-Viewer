@@ -12,6 +12,24 @@ function main() {
     const searchBar = document.getElementById("searchBar");
     searchBar.addEventListener('input', onSearch);
 
+    const collapsibleBtns = document.getElementsByClassName("collapsible-button");
+    for (const btn of collapsibleBtns) {
+        btn.addEventListener("click", _ => {
+            btn.classList.toggle("active");
+            const icon = btn.querySelector(".codicon");
+            icon.classList.toggle("codicon-chevron-down");
+            icon.classList.toggle("codicon-chevron-up");
+
+            const content = btn.nextElementSibling;
+            if (content.style.display === 'flex') {
+                content.style.display = 'none';
+            } else {
+                btn.lastChild
+                content.style.display = 'flex';
+            }
+        })
+    }
+
     icons = document.getElementsByClassName("icon-article");
 }
 
@@ -24,7 +42,7 @@ function copyUnicode(element) {
 }
 
 function onSearch(event) {
-    const searchValue = event.target.value;
+    const searchValue = event.target.value.toLowerCase();
     for (const icon of icons) {
         const name = icon.getAttribute('icon-name');
         if (name.includes(searchValue)) {
