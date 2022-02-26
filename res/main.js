@@ -3,10 +3,21 @@ let icons;
 
 window.addEventListener("load", main);
 
+document.addEventListener('DOMContentLoaded', (function () {
+    window.addEventListener('message', event => {
+        const message = event.data;
+        switch (message.command) {
+            case 'filesData':
+                console.log(message.data);
+                break;
+        }
+    }); 
+}));
+
 function main() {
     const buttons = document.getElementsByClassName("unicodeButton");
     for (const item of buttons) {
-        item.addEventListener("click", copyUnicode)
+        item.addEventListener("click", copyUnicode);
     }
 
     const searchBar = document.getElementById("searchBar");
@@ -27,14 +38,30 @@ function main() {
             if (content.style.display === 'flex') {
                 content.style.display = 'none';
             } else {
-                btn.lastChild
+                btn.lastChild;
                 content.style.display = 'flex';
             }
-        })
+        });
     }
 
     icons = document.getElementsByClassName("icon-article");
+
+    const testFile = document.getElementById("testFile");
+    const obj = testFile.getAttribute('value');
+    for (const e of obj) {
+        console.log(e);
+    }
+    readSingleFile('eWip.svg');
 }
+
+function readSingleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const contents = e.target.result;
+      console.log(contents);
+    };
+    reader.readAsText(file);
+  }
 
 function copyUnicode(element) {
     const btn = element.target;

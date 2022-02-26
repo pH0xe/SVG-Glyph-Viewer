@@ -18,3 +18,10 @@ export function getRelativeUri(uri: Uri) {
     }
     return path;
 }
+
+export function getURIRoot(filePath: string) {
+    const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
+            ? workspace.workspaceFolders[0].uri.fsPath : undefined;
+            
+    return Uri.file(rootPath + '/' + filePath);
+}

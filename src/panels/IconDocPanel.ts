@@ -11,17 +11,24 @@ export class IconDocPanel {
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
     private readonly uris: PanelUri;
+    private file!: vscode.TextDocument;
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, private readonly workspaceState: vscode.Memento) {      
         this._panel = panel;
         this.uris = this.initUri(this._panel.webview, extensionUri);
 
-        const iconsFiles = IconExtractor.openFiles(['Linearicons-Free.svg', 'eWip/eWip.svg']);
+        const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+            ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
-        IconExtractor.loadAll(iconsFiles).then(icons => {
-            this._panel.webview.html = this._getWebviewContent(icons);
-        });
-        
+        const iconsFiles = IconFile.openFiles(['Linearicons-Free.svg', 'ewip/eWip.svg'])
+            .then(iconFiles => {
+                iconFiles.forEach(iconFile => 
+                    this._panel.webview.postMessage({command: "filesData", data: iconFile})
+                );
+            });
+
+       
+        this._panel.webview.html = this._getWebviewContent();
         this._panel.onDidDispose(this.dispose, null, this._disposables);
         this._setWebviewMessageListener(this._panel.webview);
     }
@@ -66,13 +73,13 @@ export class IconDocPanel {
                         return;
                     case 'addFile':
                         // vscode.window.showInputBox().then(value => console.log('typed : ', value));
-                        vscode.window.showOpenDialog({canSelectFolders: false, canSelectMany: false, filters: { SVG: ['svg']}})
+                        vscode.window.showOpenDialog({canSelectFolders: false, canSelectMany: false, filters: { svg: ['svg']}})
                             .then(value => {
                                 if (value) {
                                     // TODO: verifier qu'il n'est pas deja enregistrer + reload le html + btn pour suprimmer du workspace
                                     const currentFiles: string[] = this.workspaceState.get('svgFiles') || [];
-                                    currentFiles.push(getRelativeUri(value[0]))
-                                    this.workspaceState.update('svgFiles', currentFiles)
+                                    currentFiles.push(getRelativeUri(value[0]));
+                                    this.workspaceState.update('svgFiles', currentFiles);
                                 }
                                     
                             });
@@ -105,7 +112,7 @@ export class IconDocPanel {
         );
     }
 
-    private _getWebviewContent(icons: IconFile[]) {        
+    private _getWebviewContent() {        
         return /*html*/ `
             <!DOCTYPE html>
             <html lang="en">
@@ -129,7 +136,6 @@ export class IconDocPanel {
                         <div>
                     </header>
                     <main>
-                        ${this.generateSection(icons)}
                     </main>
                 </body>
             </html>
@@ -146,11 +152,11 @@ export class IconDocPanel {
                         <span slot="end" class="codicon codicon-chevron-down"></span>
                     </button>
                     <div class="collapsible-section">
-                        ${this.generateArticles(file.icons || [])}
+                        {this.generateArticles(file.icons || [])}
                     </div>
                 </section>
                 <vscode-divider></vscode-divider>
-            `
+            `;
         }
         return res;
     }
@@ -167,7 +173,7 @@ export class IconDocPanel {
                         <button class="unicodeButton">${icon.cssUnicode}</button>
                     </div>
                 </article>
-            `
+            `;
         }
         return res;
     }
