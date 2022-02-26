@@ -1,7 +1,8 @@
+import DomParser = require('dom-parser');
 import * as vscode from 'vscode';
 import { Icon } from './Icon';
-import { XMLParser } from 'fast-xml-parser';
 import { IconFile } from './IconFiles';
+
 
 export class IconExtractor {
     private readonly filePath: vscode.Uri;
@@ -29,49 +30,38 @@ export class IconExtractor {
         const glyphs = this.parseFile(content)
         this.icons = [];
 
-        glyphs.forEach((glyph: any) => {
-            if (glyph['@_d'] !== '')
+        glyphs?.forEach((glyph: DomParser.Node) => {
+            if (glyph.getAttribute('d') !== '')
                 this.icons.push(this.glyphToIcon(glyph))
         });  
         return;      
     }
 
-    glyphToIcon(glyph: any): Icon {
-        let name: string = '*';
-        let svgUnicode: string = glyph['@_unicode'].replace(';', '');
-        let cssUnicode: string = `\\${glyph['@_unicode'].replace('&#x', '').replace(';', '')}`;
-        let content: string = glyph['@_d'];
+    glyphToIcon(glyph: DomParser.Node): Icon {
+        let name = '*';
+        let svgUnicode = glyph.getAttribute('unicode')?.replace(';', '') || '';
+        let cssUnicode = `\\${glyph.getAttribute('unicode')?.replace('&#x', '').replace(';', '')}` || '';
+        let content = glyph.getAttribute('d') || '';
         
-        for (const property in glyph) {           
-            if (property !== '@_unicode' && property !== '@_d')
-                name = name + ' ' + glyph[property]
+        for (const property in glyph.attributes) {           
+            if (property !== 'unicode' && property !== 'd')
+                name = name + ' ' + glyph.getAttribute(property);
         }
 
         return new Icon(name, svgUnicode, cssUnicode, content, vscode.TreeItemCollapsibleState.None)
     }
 
     private parseFile(content: string) {
-        const parser = new XMLParser({
-            ignoreAttributes: false,
-            ignoreDeclaration: true
-        });
-        const res = parser.parse(content);
-        return this.foundGlyph(res);    
-    }
-
-    private foundGlyph(object: any): any {
-        // WORKARROUND: shame on me  
-        const res = [];
-        for (const property in object) {
-            if (property.toLowerCase() === 'glyph'){
-                return object[property];
-            } else {
-                if ((typeof object[property]).toLowerCase() === 'object') {
-                    res.push(...this.foundGlyph(object[property]));
-                }
-            }
-        }
-        return res;
+        // const parser = new XMLParser({
+        //     ignoreAttributes: false,
+        //     ignoreDeclaration: true
+        // });
+        // const res = parser.parse(content);
+        
+        const parser = new DomParser();
+        const dom = parser.parseFromString(content);
+        const res = dom.getElementsByTagName('glyph');
+        return res;    
     }
 
     public static openFiles(files: string[]): IconFile[] {

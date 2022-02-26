@@ -12,6 +12,9 @@ function main() {
     const searchBar = document.getElementById("searchBar");
     searchBar.addEventListener('input', onSearch);
 
+    const btnAdd = document.getElementById("btn-add");
+    btnAdd.addEventListener('click', onAddFile);
+
     const collapsibleBtns = document.getElementsByClassName("collapsible-button");
     for (const btn of collapsibleBtns) {
         btn.addEventListener("click", _ => {
@@ -51,6 +54,13 @@ function onSearch(event) {
             icon.setAttribute("hidden", "1");
         }
     }
+}
+
+function onAddFile() {
+    vscode.postMessage({
+        command: 'addFile',
+        text: null
+    });
 }
 
 function sendSuccess(text) {

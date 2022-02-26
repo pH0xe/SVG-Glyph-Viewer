@@ -2,7 +2,12 @@ header {
   text-align: center;
   margin-bottom: 20px;
 }
-header vscode-text-field {
+header div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+header div vscode-text-field {
   width: 50%;
 }
 

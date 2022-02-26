@@ -3,7 +3,7 @@ import { Uri } from "vscode";
 import { Icon } from "../iconViewer/Icon";
 import { IconExtractor } from "../iconViewer/IconExtractor";
 import { IconFile } from "../iconViewer/IconFiles";
-import { getUri } from "../utils/getURI";
+import { getRelativeUri, getUri } from "../utils/getURI";
 import { PanelUri } from "./panelUri";
 
 export class IconDocPanel {
@@ -12,7 +12,7 @@ export class IconDocPanel {
     private _disposables: vscode.Disposable[] = [];
     private readonly uris: PanelUri;
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {      
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, private readonly workspaceState: vscode.Memento) {      
         this._panel = panel;
         this.uris = this.initUri(this._panel.webview, extensionUri);
 
@@ -26,7 +26,7 @@ export class IconDocPanel {
         this._setWebviewMessageListener(this._panel.webview);
     }
 
-    public static render(extensionUri: vscode.Uri) {      
+    public static render(extensionUri: vscode.Uri, workspaceState: vscode.Memento) {      
         if (IconDocPanel.currentPanel) {
             IconDocPanel.currentPanel._panel.reveal(vscode.ViewColumn.One);
         } else {
@@ -34,7 +34,7 @@ export class IconDocPanel {
                 enableScripts: true,
             });
 
-            IconDocPanel.currentPanel = new IconDocPanel(panel, extensionUri);
+            IconDocPanel.currentPanel = new IconDocPanel(panel, extensionUri, workspaceState);
         }
     }
 
@@ -63,6 +63,19 @@ export class IconDocPanel {
                         return;
                     case "success":
                         vscode.window.showInformationMessage(text);
+                        return;
+                    case 'addFile':
+                        // vscode.window.showInputBox().then(value => console.log('typed : ', value));
+                        vscode.window.showOpenDialog({canSelectFolders: false, canSelectMany: false, filters: { SVG: ['svg']}})
+                            .then(value => {
+                                if (value) {
+                                    // TODO: verifier qu'il n'est pas deja enregistrer + reload le html + btn pour suprimmer du workspace
+                                    const currentFiles: string[] = this.workspaceState.get('svgFiles') || [];
+                                    currentFiles.push(getRelativeUri(value[0]))
+                                    this.workspaceState.update('svgFiles', currentFiles)
+                                }
+                                    
+                            });
                         return;
                 }
             },
@@ -108,9 +121,12 @@ export class IconDocPanel {
                 <body> 
                     <header>
                         <h1>SVG Glyph Viewer</h1>
+                        <div>
                         <vscode-text-field placeholder="Search" id="searchBar">
                             <span slot="start" class="codicon codicon-search"></span>
                         </vscode-text-field>
+                        <vscode-button id="btn-add">Add file</vscode-button>
+                        <div>
                     </header>
                     <main>
                         ${this.generateSection(icons)}
