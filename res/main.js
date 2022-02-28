@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', (function () {
         switch (message.command) {
             case 'filesData':
                 console.log(message.data);
+                generateSection(message.data);
                 break;
         }
     }); 
@@ -26,42 +27,8 @@ function main() {
     const btnAdd = document.getElementById("btn-add");
     btnAdd.addEventListener('click', onAddFile);
 
-    const collapsibleBtns = document.getElementsByClassName("collapsible-button");
-    for (const btn of collapsibleBtns) {
-        btn.addEventListener("click", _ => {
-            btn.classList.toggle("active");
-            const icon = btn.querySelector(".codicon");
-            icon.classList.toggle("codicon-chevron-down");
-            icon.classList.toggle("codicon-chevron-up");
-
-            const content = btn.nextElementSibling;
-            if (content.style.display === 'flex') {
-                content.style.display = 'none';
-            } else {
-                btn.lastChild;
-                content.style.display = 'flex';
-            }
-        });
-    }
-
     icons = document.getElementsByClassName("icon-article");
-
-    const testFile = document.getElementById("testFile");
-    const obj = testFile.getAttribute('value');
-    for (const e of obj) {
-        console.log(e);
-    }
-    readSingleFile('eWip.svg');
 }
-
-function readSingleFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const contents = e.target.result;
-      console.log(contents);
-    };
-    reader.readAsText(file);
-  }
 
 function copyUnicode(element) {
     const btn = element.target;
@@ -102,4 +69,124 @@ function sendError(text) {
         command: 'error',
         text
     });
+}
+
+
+function onClickCollapsible(btn) {
+    return function(event) {
+        btn.classList.toggle("active");
+        const icon = btn.querySelector(".codicon");
+        icon.classList.toggle("codicon-chevron-down");
+        icon.classList.toggle("codicon-chevron-up");
+
+        const content = btn.nextElementSibling;
+        if (content.style.display === 'flex') {
+            content.style.display = 'none';
+        } else {
+            btn.lastChild;
+            content.style.display = 'flex';
+        }
+    };
+}
+ 
+
+function generateSection(iconFile) {
+    const main = document.getElementById('main-section');
+
+   const section = document.createElement('section');
+
+   const btnCollapse = document.createElement('button');
+   btnCollapse.setAttribute('class', 'collapsible-button');
+   btnCollapse.innerText = iconFile.displayName;
+
+   const spanIconChevron = document.createElement('span');
+   spanIconChevron.setAttribute('slot', 'end');
+   spanIconChevron.setAttribute('class', 'codicon codicon-chevron-down');
+
+   const divCollapsible = document.createElement('div');
+   divCollapsible.setAttribute('class', 'collapsible-section');
+
+   const divider = document.createElement('vscode-divider');
+
+   btnCollapse.appendChild(spanIconChevron);
+   section.appendChild(btnCollapse);
+   section.appendChild(divCollapsible);
+   main.appendChild(section);
+   main.appendChild(divider);
+
+   btnCollapse.addEventListener('click', onClickCollapsible(btnCollapse));
+
+   generateArticles(divCollapsible, iconFile);
+}
+
+function generateArticles(divCollapsible, iconFile) {
+   const icons = parseSVG(iconFile.file);
+    for (const icon of icons) {
+        generateArticle(divCollapsible, icon);
+    }
+   
+}
+
+function generateArticle(divCollapsible, icon) {
+    const article = document.createElement('article');
+    article.setAttribute('hidden', '0');
+    article.setAttribute('class', 'icon-article');
+    article.setAttribute('icon-name', icon.name.toLowerCase());
+
+    const img = getImgTag(icon);
+
+    const divCopy = document.createElement('div');
+    divCopy.setAttribute('class', 'copyValue');
+
+    const btnSvg = document.createElement('button');
+    btnSvg.setAttribute('class', 'unicodeButton');
+    btnSvg.innerText = '&amp;' + icon.svgUnicode.replace('&', '');
+
+    const btnCss = document.createElement('button');
+    btnCss.setAttribute('class', 'unicodeButton');
+    btnCss.innerText = icon.cssUnicode;
+
+    divCopy.appendChild(btnSvg);
+    divCopy.appendChild(btnCss);
+    article.appendChild(img);
+    article.appendChild(divCopy);
+    divCollapsible.appendChild(article);
+}
+
+function getImgTag(icon) {
+    const size = 1024;
+    const fillColorRect = 'rgba(0, 0, 0, 0)';
+    const pathColor = 'rgba(255, 255, 255, .75)';
+    const content = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 64 ${size} ${size}"><rect height="${size}" width="${size}" x="0" y="0" fill="${fillColorRect}" /><path transform-origin="${size / 2} ${size / 2}" transform="scale(.75 -.75)" fill="${pathColor}" d="${icon.content}"/></svg>`;
+
+    const img = document.createElement('img');
+    img.setAttribute('class', 'icon');
+    img.setAttribute('src', content);
+    img.setAttribute('title', icon.name.replace('*','').trim());
+    return img;
+}
+
+function parseSVG(svgString) {
+    const res = [];
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(svgString, 'text/xml');
+    const glyphs = dom.getElementsByTagName('glyph');
+    for (const glyph of glyphs) {
+        res.push(parseGlyph(glyph));
+    }
+    return res;
+}
+
+function parseGlyph(glyph) {
+    let name = '*';
+    let svgUnicode = glyph.getAttribute('unicode')?.replace(';', '') || '';
+    let cssUnicode = `\\${glyph.getAttribute('unicode')?.replace('&#x', '').replace(';', '')}` || '';
+    let content = glyph.getAttribute('d') || '';
+    console.log(glyph);
+    for (const property in glyph.attributes) {           
+        if (property !== 'unicode' && property !== 'd') {
+            name = name + ' ' + glyph.getAttribute(property);
+        }
+    }
+    return {name, svgUnicode, cssUnicode, content};
 }

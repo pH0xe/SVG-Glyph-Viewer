@@ -112,7 +112,7 @@ export class IconDocPanel {
         );
     }
 
-    private _getWebviewContent() {        
+    private _getWebviewContent() {
         return /*html*/ `
             <!DOCTYPE html>
             <html lang="en">
@@ -135,31 +135,13 @@ export class IconDocPanel {
                         <vscode-button id="btn-add">Add file</vscode-button>
                         <div>
                     </header>
-                    <main>
+                    <main id="main-section">
                     </main>
                 </body>
             </html>
         `;
     }
 
-    private generateSection(files: IconFile[]) {
-        let res = '';
-        for (const file of files) {
-            res += /*html*/ `
-                <section>
-                    <button class="collapsible-button">
-                        ${file.displayName}
-                        <span slot="end" class="codicon codicon-chevron-down"></span>
-                    </button>
-                    <div class="collapsible-section">
-                        {this.generateArticles(file.icons || [])}
-                    </div>
-                </section>
-                <vscode-divider></vscode-divider>
-            `;
-        }
-        return res;
-    }
     
     private generateArticles(icons: Icon[]) {
         let res = '';
