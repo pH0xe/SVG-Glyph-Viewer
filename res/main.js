@@ -1,33 +1,85 @@
 const vscode = acquireVsCodeApi();
-let icons;
+let iconsArticles;
+let iconsFile;
 
 window.addEventListener("load", main);
-
-document.addEventListener('DOMContentLoaded', (function () {
-    window.addEventListener('message', event => {
-        const message = event.data;
-        switch (message.command) {
-            case 'filesData':
-                console.log(message.data);
-                generateSection(message.data);
-                break;
-        }
-    }); 
-}));
+window.addEventListener('message', intercepteMessage); 
 
 function main() {
-    const buttons = document.getElementsByClassName("unicodeButton");
-    for (const item of buttons) {
-        item.addEventListener("click", copyUnicode);
-    }
-
     const searchBar = document.getElementById("searchBar");
     searchBar.addEventListener('input', onSearch);
 
     const btnAdd = document.getElementById("btn-add");
     btnAdd.addEventListener('click', onAddFile);
 
-    icons = document.getElementsByClassName("icon-article");
+    const btnRemove = document.getElementById("btn-remove");
+    btnRemove.addEventListener('click', onRemoveFile);
+
+    iconsArticles = document.getElementsByClassName("icon-article");
+
+    const btnSettings = document.getElementById('btn-settings');
+    btnSettings.addEventListener('click', (event) => {
+        vscode.postMessage({
+            command: 'openSettings',
+            text: null
+        });
+    });
+    requestColors();
+    requestFiles();
+}
+
+function intercepteMessage(event) {
+    const previousState = vscode.getState();
+    iconsFile = previousState ? previousState.iconsFile : [];
+
+    const message = event.data;
+    switch (message.command) {
+        case 'filesData':
+            if ("content" in document.createElement("template")) {
+                iconsFile.push(message.data);
+                vscode.setState({iconsFile});
+
+                const iconFile = message.data;
+                const section = generateSection(iconFile.displayName, iconFile.fileName)
+                parseSVG(iconFile.file).then((res) => {
+                    generateArticles(section, res);
+                });
+            } else {
+                sendError("Template is not supported !")
+            }
+            break;
+        case 'removeFromWebView':
+            iconsFile = iconsFile.filter(file => file.fileName != message.data);
+            vscode.setState({iconsFile});
+            document.getElementById(message.data).remove();
+            break;
+        case 'updateNameOnWebview':
+            const filePath = message.data.filePath;
+            const displayName = message.data.displayName;
+            document.getElementById(filePath).querySelector('.collapsible-button #content').innerText = displayName;
+            break;
+        case 'updateColors':
+            const { backgroundColor, foregroundColor } = message.data;
+            updateColors(backgroundColor, foregroundColor);
+            break;
+    }
+}
+
+function updateColors(backgroundColor, foregroundColor) {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        article {
+            background-color: ${backgroundColor};
+            color:red;
+        }
+        svg {
+            fill: ${foregroundColor};
+        }
+        article button {
+            color: ${foregroundColor};
+        }
+        `;
+    document.head.appendChild(style);
 }
 
 function copyUnicode(element) {
@@ -40,7 +92,7 @@ function copyUnicode(element) {
 
 function onSearch(event) {
     const searchValue = event.target.value.toLowerCase();
-    for (const icon of icons) {
+    for (const icon of iconsArticles) {
         const name = icon.getAttribute('icon-name');
         if (name.includes(searchValue)) {
             icon.setAttribute("hidden", "0");
@@ -50,9 +102,30 @@ function onSearch(event) {
     }
 }
 
+function requestFiles() {
+    vscode.postMessage({
+        command: 'requestFiles',
+        text: null
+    });
+}
+
+function requestColors() {
+    vscode.postMessage({
+        command: 'requestColors',
+        text: null
+    });
+}
+
 function onAddFile() {
     vscode.postMessage({
         command: 'addFile',
+        text: null
+    });
+}
+
+function onRemoveFile() {
+    vscode.postMessage({
+        command: 'removeFile',
         text: null
     });
 }
@@ -71,11 +144,10 @@ function sendError(text) {
     });
 }
 
-
 function onClickCollapsible(btn) {
     return function(event) {
         btn.classList.toggle("active");
-        const icon = btn.querySelector(".codicon");
+        const icon = btn.querySelector(".btn-chevron");
         icon.classList.toggle("codicon-chevron-down");
         icon.classList.toggle("codicon-chevron-up");
 
@@ -88,85 +160,75 @@ function onClickCollapsible(btn) {
         }
     };
 }
+
+function onClickEdit(displayName, filePath) {
+    return function(event) {
+        event.stopPropagation();
+        vscode.postMessage({
+            command: 'changeDisplayName',
+            text: {displayName, filePath}
+        });
+    };
+}
  
-
-function generateSection(iconFile) {
+function generateSection(displayName, fileName) {
     const main = document.getElementById('main-section');
+    const template = document.getElementById('section');
+    const section = document.importNode(template.content, true);
+    const sectionTag = section.querySelector('section');
 
-   const section = document.createElement('section');
+    sectionTag.setAttribute('id', fileName);
 
-   const btnCollapse = document.createElement('button');
-   btnCollapse.setAttribute('class', 'collapsible-button');
-   btnCollapse.innerText = iconFile.displayName;
+    const btnCollapse = section.querySelector('.collapsible-button');
+    btnCollapse.querySelector('#content').innerText = displayName;
 
-   const spanIconChevron = document.createElement('span');
-   spanIconChevron.setAttribute('slot', 'end');
-   spanIconChevron.setAttribute('class', 'codicon codicon-chevron-down');
+    main.appendChild(section);
 
-   const divCollapsible = document.createElement('div');
-   divCollapsible.setAttribute('class', 'collapsible-section');
+    btnCollapse.addEventListener('click', onClickCollapsible(btnCollapse));
 
-   const divider = document.createElement('vscode-divider');
+    const btnEdit = sectionTag.querySelector('.btn-edit-name');
+    btnEdit.addEventListener('click', onClickEdit(displayName, fileName));
 
-   btnCollapse.appendChild(spanIconChevron);
-   section.appendChild(btnCollapse);
-   section.appendChild(divCollapsible);
-   main.appendChild(section);
-   main.appendChild(divider);
-
-   btnCollapse.addEventListener('click', onClickCollapsible(btnCollapse));
-
-   generateArticles(divCollapsible, iconFile);
+    return sectionTag;
 }
 
-function generateArticles(divCollapsible, iconFile) {
-   const icons = parseSVG(iconFile.file);
+async function generateArticles(section, icons) {  
+    const divCollapsible = section.querySelector('.collapsible-section');
     for (const icon of icons) {
-        generateArticle(divCollapsible, icon);
-    }
-   
+        await generateArticle(divCollapsible, icon);
+    } 
+    section.querySelector('vscode-progress-ring').remove();
+    return;
 }
 
-function generateArticle(divCollapsible, icon) {
-    const article = document.createElement('article');
-    article.setAttribute('hidden', '0');
-    article.setAttribute('class', 'icon-article');
-    article.setAttribute('icon-name', icon.name.toLowerCase());
+async function generateArticle(divCollapsible, icon) {      
+    const template = document.getElementById('article');
+    const article = document.importNode(template.content, true)
 
-    const img = getImgTag(icon);
+    const art = article.querySelector('article');
+    art.setAttribute('icon-name', icon.name.toLowerCase());
 
-    const divCopy = document.createElement('div');
-    divCopy.setAttribute('class', 'copyValue');
+    const img = article.querySelector('.icon');
+    const title = img.querySelector('title');
+    title.innerHTML = icon.name.replace('*', '').trim();
 
-    const btnSvg = document.createElement('button');
-    btnSvg.setAttribute('class', 'unicodeButton');
-    btnSvg.innerText = '&amp;' + icon.svgUnicode.replace('&', '');
+    const path = img.querySelector('path');
+    path.setAttribute('d', icon.content);
 
-    const btnCss = document.createElement('button');
-    btnCss.setAttribute('class', 'unicodeButton');
-    btnCss.innerText = icon.cssUnicode;
+    const btnSvg = article.querySelector('.unicodeButton.svg')
+    btnSvg.innerText = toUnicode('&#x', icon.unicode);
 
-    divCopy.appendChild(btnSvg);
-    divCopy.appendChild(btnCss);
-    article.appendChild(img);
-    article.appendChild(divCopy);
+    const btnCss = article.querySelector('.unicodeButton.css')
+    btnCss.innerText = toUnicode('\\u', icon.unicode);
+
+    btnSvg.addEventListener("click", copyUnicode);
+    btnCss.addEventListener("click", copyUnicode);
+
     divCollapsible.appendChild(article);
+    return;
 }
 
-function getImgTag(icon) {
-    const size = 1024;
-    const fillColorRect = 'rgba(0, 0, 0, 0)';
-    const pathColor = 'rgba(255, 255, 255, .75)';
-    const content = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 64 ${size} ${size}"><rect height="${size}" width="${size}" x="0" y="0" fill="${fillColorRect}" /><path transform-origin="${size / 2} ${size / 2}" transform="scale(.75 -.75)" fill="${pathColor}" d="${icon.content}"/></svg>`;
-
-    const img = document.createElement('img');
-    img.setAttribute('class', 'icon');
-    img.setAttribute('src', content);
-    img.setAttribute('title', icon.name.replace('*','').trim());
-    return img;
-}
-
-function parseSVG(svgString) {
+async function parseSVG(svgString) {
     const res = [];
     const parser = new DOMParser();
     const dom = parser.parseFromString(svgString, 'text/xml');
@@ -179,14 +241,18 @@ function parseSVG(svgString) {
 
 function parseGlyph(glyph) {
     let name = '*';
-    let svgUnicode = glyph.getAttribute('unicode')?.replace(';', '') || '';
-    let cssUnicode = `\\${glyph.getAttribute('unicode')?.replace('&#x', '').replace(';', '')}` || '';
-    let content = glyph.getAttribute('d') || '';
-    console.log(glyph);
-    for (const property in glyph.attributes) {           
-        if (property !== 'unicode' && property !== 'd') {
-            name = name + ' ' + glyph.getAttribute(property);
+    let unicode = glyph.getAttribute('unicode');
+    let content = glyph.getAttribute('d');
+    const attributes = glyph.attributes;
+    for (let i = 0; i < attributes.length; i++) {
+        const element = attributes.item(i);
+        if (element.name !== 'd' && element.name !== 'unicode'){
+            name += ' ' + element.value;
         }
     }
-    return {name, svgUnicode, cssUnicode, content};
+    return {name, unicode, content};
 }
+
+function toUnicode(prefix, str) {
+    return prefix + str.charCodeAt(0).toString(16);
+  }

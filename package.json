@@ -3,6 +3,7 @@
   "displayName": "SVG Glyph Viewer",
   "description": "Basic extension to preview svg glyph",
   "version": "0.0.1",
+  "publisher": "ph0xe",
   "engines": {
     "vscode": "^1.64.0"
   },
@@ -18,9 +19,40 @@
       {
         "command": "glyphviewer.start",
         "title": "Open icon previewer",
-        "category": "Glyph Viewer"
+        "category": "Glyph Viewer",
+        "icon": {
+          "light": "res/svg-icon-light.svg",
+          "dark": "res/svg-icon-dark.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "glyphviewer.start",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Glyph Viewer",
+      "properties": {
+        "glyphviewer.backgroundColor": {
+          "type": "string",
+          "default": "#192A56FF",
+          "description": "Background color of icons",
+          "pattern": "^#([A-Z]|[0-9]|[a-z]){8}$",
+          "patternErrorMessage": "Please use Hexadecimal color code with transparency (exemple: '#273C75FF')"
+        },
+        "glyphviewer.foregroundColor": {
+          "type": "string",
+          "default": "#DCDDE1FF",
+          "description": "Foreground color for icons",
+          "pattern": "^#([A-Z]|[0-9]|[a-z]){8}$",
+          "patternErrorMessage": "Please use Hexadecimal color code with transparency (exemple: '#F5F6FAFF')"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

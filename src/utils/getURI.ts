@@ -8,9 +8,6 @@ export function getRelativeUri(uri: Uri) {
     const path = uri.fsPath;
     const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
     ? workspace.workspaceFolders[0].uri.fsPath : undefined;   
-    console.log(path);
-    console.log(rootPath);
-    
     
     if (rootPath) {   
         let res = path.replace(rootPath, '');

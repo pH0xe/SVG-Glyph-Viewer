@@ -1,7 +1,6 @@
-import { Icon } from "./Icon";
-import { IconExtractor } from "./IconExtractor";
 import * as vscode from 'vscode';
 import { getURIRoot } from "../utils/getURI";
+import { FileQuickPickItem } from "../panels/FileQuickPickItem";
 
 export class IconFile {
     public displayName: string;
@@ -19,10 +18,10 @@ export class IconFile {
         return;
     }
 
-    public static async openFiles(files: string[]) {
+    public static async openFiles(files: FileQuickPickItem[]) {
         const iconsFiles: IconFile[] = [];
         for (const file of files) {
-            const icF = new IconFile(file, file);
+            const icF = new IconFile(file.detail!, file.label);
             await icF.setIcons();
             iconsFiles.push(icF);
         }

@@ -2,13 +2,16 @@ header {
   text-align: center;
   margin-bottom: 20px;
 }
-header div {
+header > div {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
-header div vscode-text-field {
+header > div vscode-text-field {
   width: 50%;
+}
+header > div > div:last-child {
+  display: none;
 }
 
 main vscode-divider {
@@ -35,7 +38,13 @@ main section .collapsible-button span {
   font-weight: bold !important;
 }
 main section .collapsible-button:hover, main section .collapsible-button.active {
-  filter: brightness(75%);
+  background-color: #3c3c3c77;
+}
+main section .collapsible-button .collapsible-button-actions {
+  display: flex;
+}
+main section .collapsible-button .collapsible-button-actions vscode-button {
+  margin-right: 10px;
 }
 main section .collapsible-section {
   display: flex;
@@ -47,9 +56,11 @@ main section .collapsible-section article {
   min-width: 135px;
   width: 15%;
   margin: 10px;
-  background-color: rgba(255, 0, 0, 0.1);
   border-radius: 10px;
   border: 1px lightgrey solid;
+}
+main section .collapsible-section article svg {
+  width: 100%;
 }
 main section .collapsible-section article .copyValue {
   display: flex;
@@ -59,7 +70,6 @@ main section .collapsible-section article .copyValue button {
   width: 50%;
   background-color: transparent;
   border: 1px lightgray solid;
-  color: white;
   cursor: pointer;
 }
 main section .collapsible-section article .copyValue button:first-child {
@@ -77,5 +87,3 @@ main section .collapsible-section article[hidden="0"] {
 main section .collapsible-section article[hidden="1"] {
   display: none;
 }
-
-/*# sourceMappingURL=style.css.map */
