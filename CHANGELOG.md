@@ -1,9 +1,9 @@
 # Change Log
 
-All notable changes to the "svg-glyph-viewer" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
 ## [Unreleased]
 
-- Initial release
+## [1.0.0]
+
+- Load multiple svg files
+- Display glyphs/icons in a dedicated page
+- Search into all glyphs
