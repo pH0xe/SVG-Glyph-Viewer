@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getURIRoot } from "../utils/getURI";
 import { FileQuickPickItem } from "../panels/FileQuickPickItem";
+import { IconDocPanel } from '../panels/IconDocPanel';
 
 export class IconFile {
     public displayName: string;
@@ -13,17 +14,24 @@ export class IconFile {
         this.displayName = displayName ? displayName : fileName;
     }
 
-    public async setIcons() { 
-        this.file = (await vscode.workspace.openTextDocument(getURIRoot(this.fileName))).getText();;
-        return;
+    public async setIcons(): Promise<boolean> { 
+        try {
+            this.file = (await vscode.workspace.openTextDocument(getURIRoot(this.fileName))).getText();
+        } catch (error) {
+            vscode.window.showErrorMessage('Unable to open file: ' + this.fileName);
+            return false;
+        }
+        return true;
     }
 
     public static async openFiles(files: FileQuickPickItem[]) {
         const iconsFiles: IconFile[] = [];
         for (const file of files) {
             const icF = new IconFile(file.detail!, file.label);
-            await icF.setIcons();
-            iconsFiles.push(icF);
+            if(await icF.setIcons()) {
+                iconsFiles.push(icF);
+            }
+            
         }
         return iconsFiles;
     }
