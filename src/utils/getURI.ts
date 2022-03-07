@@ -5,15 +5,12 @@ export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) 
 }
 
 export function getRelativeUri(uri: Uri) {
+    const pathParser = require('path')
     const path = uri.fsPath;
     const rootPath = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
     ? workspace.workspaceFolders[0].uri.fsPath : undefined;   
     
-    if (rootPath) {   
-        let res = path.replace(rootPath, '');
-        return res.slice(1);
-    }
-    return path;
+    return pathParser.relative(rootPath, path);
 }
 
 export function getURIRoot(filePath: string) {
