@@ -1,6 +1,18 @@
-$colorGray: #3c3c3c;
-$colorGrayDarker: #3c3c3c77;
-$colorText: #D4d4d4;
+body.vscode-light {
+    --button-color: rgb(214, 214, 214);
+    --button-color-hover: rgb(196, 196, 196);
+}
+
+body.vscode-dark {
+    --button-color: var(--vscode-button-secondaryBackground);
+    --button-color-hover: var(--vscode-button-secondaryHoverBackground);
+}
+
+$borderColor: var(--vscode-editor-foreground);
+$textColor: var(--vscode-editor-foreground);
+
+$buttonBackground: var(--button-color);
+$buttonBackgroundHover: var(--button-color-hover);
 
 header {
     text-align: center;
@@ -25,12 +37,13 @@ main {
     vscode-divider {
         margin-top: 0;
         margin-bottom: 0;
+        border-top-color: $borderColor;
     }
 
     section {
         .collapsible-button{
-            background-color: $colorGray;
-            color: $colorText;
+            background-color: $buttonBackground;
+            color: $textColor;
             cursor: pointer;
             padding: 18px;
             width: 100%;
@@ -49,13 +62,14 @@ main {
             }
 
             &:hover, &.active {
-                background-color: $colorGrayDarker;
+                background-color: $buttonBackgroundHover;
             }
 
             .collapsible-button-actions {
                 display: flex;
                 vscode-button {
                     margin-right: 10px;
+                    color: $textColor;
                 }
             }
         }
@@ -71,7 +85,7 @@ main {
                 width: 15%;
                 margin: 10px;
                 border-radius: 10px;
-                border: 1px lightgrey solid;
+                border: 1px $borderColor solid;
 
                 svg {
                     width: 100%;
