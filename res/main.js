@@ -42,7 +42,12 @@ function intercepteMessage(event) {
                 const iconFile = message.data;
                 const section = generateSection(iconFile.displayName, iconFile.fileName)
                 parseSVG(iconFile.file).then((res) => {
-                    generateArticles(section, res);
+                    generateArticles(section, res).then(() => {
+                        const searchValue = document.getElementById('searchBar');
+                        if (searchValue.value){
+                            search(searchValue.value);
+                        }
+                    });
                 });
             } else {
                 sendError("Template is not supported !")
@@ -92,6 +97,10 @@ function copyUnicode(element) {
 
 function onSearch(event) {
     const searchValue = event.target.value.toLowerCase();
+    search(searchValue);
+}
+
+function search(searchValue) {
     for (const icon of iconsArticles) {
         const name = icon.getAttribute('icon-name');
         if (name.includes(searchValue)) {
