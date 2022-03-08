@@ -1,3 +1,13 @@
+body.vscode-light {
+  --button-color: rgb(214, 214, 214);
+  --button-color-hover: rgb(196, 196, 196);
+}
+
+body.vscode-dark {
+  --button-color: var(--vscode-button-secondaryBackground);
+  --button-color-hover: var(--vscode-button-secondaryHoverBackground);
+}
+
 header {
   text-align: center;
   margin-bottom: 20px;
@@ -17,10 +27,11 @@ header > div > div:last-child {
 main vscode-divider {
   margin-top: 0;
   margin-bottom: 0;
+  border-top-color: var(--vscode-editor-foreground);
 }
 main section .collapsible-button {
-  background-color: #3c3c3c;
-  color: #D4d4d4;
+  background-color: var(--button-color);
+  color: var(--vscode-editor-foreground);
   cursor: pointer;
   padding: 18px;
   width: 100%;
@@ -38,13 +49,14 @@ main section .collapsible-button span {
   font-weight: bold !important;
 }
 main section .collapsible-button:hover, main section .collapsible-button.active {
-  background-color: #3c3c3c77;
+  background-color: var(--button-color-hover);
 }
 main section .collapsible-button .collapsible-button-actions {
   display: flex;
 }
 main section .collapsible-button .collapsible-button-actions vscode-button {
   margin-right: 10px;
+  color: var(--vscode-editor-foreground);
 }
 main section .collapsible-section {
   display: flex;
@@ -57,7 +69,7 @@ main section .collapsible-section article {
   width: 15%;
   margin: 10px;
   border-radius: 10px;
-  border: 1px lightgrey solid;
+  border: 1px var(--vscode-editor-foreground) solid;
 }
 main section .collapsible-section article svg {
   width: 100%;
