@@ -2,7 +2,7 @@
   "name": "svg-glyph-viewer",
   "displayName": "SVG Glyph Viewer",
   "description": "Extension for Visual Studio Code allowing the visualisation of glyphs/icons of an svg file",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "icon": "res/icon.png",
   "repository": {
     "type": "git",
