@@ -6,7 +6,7 @@ import { PanelUri } from "./panelUri";
 
 export class IconDocPanel {
     public static currentPanel: IconDocPanel | undefined;
-    private readonly _panel: vscode.WebviewPanel;
+    public readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
     private readonly uris: PanelUri;
 
