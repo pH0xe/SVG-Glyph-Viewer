@@ -9,9 +9,12 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
-node_modules
-out
+dist
 webpack.config.json
 **/*.scss
 res/readme/**
+res/style.css
 **/*.vsix
+node_modules
+!node_modules/@vscode/codicons
+!node_modules/@vscode/webview-ui-toolkit
