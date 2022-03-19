@@ -139,22 +139,9 @@ export class IconDocPanel {
 
     private initUri(webview: vscode.Webview, extensionUri: vscode.Uri): PanelUri {
         return new PanelUri(
-            getUri(webview, extensionUri, [
-                "node_modules",
-                "@vscode",
-                "webview-ui-toolkit",
-                "dist",
-                "toolkit.js",
-            ]),
-            getUri(webview, extensionUri, [
-                "node_modules",
-                "@vscode",
-                "codicons",
-                "dist",
-                "codicon.css",
-            ]),
+            getUri(webview, extensionUri, ["out","toolkit.js"]),
             getUri(webview, extensionUri, ["res", "main.js"]),
-            getUri(webview, extensionUri, ["res", "style.css"])
+            getUri(webview, extensionUri, ["out", "style.css"])
         );
     }
 
@@ -167,7 +154,6 @@ export class IconDocPanel {
             <script type="module" src="${this.uris.toolkit}"></script>
             <script type="module" src="${this.uris.script}"></script>
             <link href="${this.uris.style}" rel="stylesheet">
-            <link href="${this.uris.codicon}" rel="stylesheet">
             <title>Made by pH0xe</title>
         </head>
         <body>

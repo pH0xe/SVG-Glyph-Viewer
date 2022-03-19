@@ -17,3 +17,10 @@
   - [#8](https://github.com/pH0xe/SVG-Glyph-Viewer/issues/8) : allow to load files which are not in the workspace by replacing custom function (shame on me) by node modules (path)
 - Optimization
   - [#6](https://github.com/pH0xe/SVG-Glyph-Viewer/issues/6) : Reduce extension size and loading time by bundling and excluding files
+
+
+## [1.1.1]
+
+- Fix
+  - switching from webpack to esbuild
+  - Adding missing dependencies (codicons & webview-ui-toolkit)
